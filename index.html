@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>濕氣 HUMIDITY | Volume Icon Update</title>
+    <title>濕氣 HUMIDITY | Mobile Optimized</title>
     <style>
         /* --- 基礎設定 --- */
         body, html {
@@ -34,7 +34,6 @@
             object-position: 50% 15%;
         }
 
-        /* 核心特效：光影變化覆蓋層 */
         #lighting-overlay {
             position: absolute;
             top: 0;
@@ -55,8 +54,6 @@
         }
 
         /* --- Canvas 層 --- */
-        
-        /* 1. 霧氣層 */
         #fogCanvas {
             position: absolute;
             top: 0;
@@ -66,7 +63,6 @@
             touch-action: none;
         }
         
-        /* 2. 暈影層 (Vignette) */
         #vignette {
             position: absolute;
             top: 0;
@@ -78,11 +74,9 @@
             pointer-events: none;
         }
 
-        /* --- UI 介面層 --- */
+        /* --- UI 共用設定 --- */
         .ui-layer {
             position: absolute;
-            bottom: 40px;
-            left: 40px;
             z-index: 10;
             color: rgba(220, 230, 220, 0.9);
             pointer-events: none; 
@@ -90,6 +84,10 @@
             flex-direction: column;
             gap: 5px;
             text-shadow: 0 2px 10px rgba(0,0,0,0.8);
+            
+            /* 電腦版預設位置：左下角 */
+            bottom: 40px;
+            left: 40px;
         }
 
         .title {
@@ -120,6 +118,70 @@
             border: 1px solid rgba(255,255,255,0.1);
         }
 
+        /* AI 互動區 */
+        .ai-container {
+            position: absolute;
+            z-index: 20;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            pointer-events: auto;
+            
+            /* 電腦版預設位置：右下角 */
+            bottom: 40px;
+            right: 40px;
+            width: 320px;
+        }
+
+        /* --- 手機版響應式調整 (Media Query) --- */
+        @media (max-width: 768px) {
+            /* 1. 調整左側播放器與標題的位置 */
+            .ui-layer {
+                top: 40px; /* 改到左上角，避開底部 */
+                bottom: auto;
+                left: 20px;
+                right: 20px; /* 寬度限制 */
+            }
+
+            .title {
+                font-size: 2rem; /* 標題縮小 */
+                letter-spacing: 4px;
+            }
+
+            .subtitle {
+                font-size: 0.8rem;
+                margin-bottom: 10px;
+            }
+
+            /* 隱藏播放器中不重要的裝飾，節省空間 */
+            .player-mockup {
+                padding: 8px 12px;
+                gap: 10px;
+                /* 讓播放器置左對齊，不要撐滿 */
+                align-self: flex-start; 
+            }
+            
+            /* 2. 調整 AI 互動區的位置 */
+            .ai-container {
+                /* 改為置底並撐滿寬度 */
+                bottom: 20px;
+                right: 20px;
+                left: 20px;
+                width: auto; /* 自動寬度 */
+            }
+
+            .input-group {
+                /* 手機上輸入框稍微大一點好點擊 */
+                padding: 12px; 
+            }
+            
+            .hint {
+                /* 提示文字移到中間偏上，避開鍵盤 */
+                top: 40% !important; 
+            }
+        }
+
+        /* --- 以下為元件樣式 (保持不變) --- */
         .play-btn {
             width: 32px;
             height: 32px;
@@ -145,7 +207,6 @@
             transition: all 0.2s;
         }
 
-        /* 音量控制區塊 */
         .volume-group {
             display: flex;
             align-items: center;
@@ -158,7 +219,6 @@
             cursor: pointer;
             width: 20px;
             text-align: center;
-            /* 讓 emoji 或字元垂直置中 */
             display: flex;
             justify-content: center;
             align-items: center;
@@ -185,12 +245,17 @@
         }
 
         .progress-bar {
-            width: 120px; 
+            width: 80px; /* 手機版可能需要短一點，這裡設為通用 80px */
             height: 2px;
             background: rgba(255,255,255,0.2);
             position: relative;
             overflow: hidden;
             margin-left: 5px;
+        }
+
+        /* 手機版讓進度條可以 RWD 縮放 */
+        @media (min-width: 769px) {
+            .progress-bar { width: 120px; }
         }
 
         .progress-fill {
@@ -205,19 +270,6 @@
         @keyframes progress-move {
             0% { width: 0%; }
             100% { width: 100%; }
-        }
-
-        /* --- AI 互動區 --- */
-        .ai-container {
-            position: absolute;
-            bottom: 40px;
-            right: 40px;
-            z-index: 20;
-            width: 320px;
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
-            pointer-events: auto;
         }
 
         .ai-response-box {
@@ -307,24 +359,20 @@
         <div id="lighting-overlay"></div>
     </div>
 
-    <!-- 暈影層 -->
     <div id="vignette"></div>
-
-    <!-- 霧氣畫布 -->
     <canvas id="fogCanvas"></canvas>
 
     <div class="hint">Wipe the glass...</div>
 
     <div class="ui-layer">
         <h1 class="title">濕氣</h1>
-        <div class="subtitle">HUMIDITY - Pure Fog</div>
+        <div class="subtitle">HUMIDITY - Mobile Layout</div>
         
         <div class="player-mockup">
             <div class="play-btn" onclick="togglePlay(this)">
                 <div class="play-icon"></div>
             </div>
             <div class="volume-group">
-                <!-- 預設顯示靜音 Icon -->
                 <div class="volume-icon" id="muteBtn" onclick="toggleMute()">🔇</div>
                 <input type="range" id="volumeSlider" min="0" max="1" step="0.01" value="0.5" title="音量">
             </div>
@@ -351,62 +399,39 @@
         const volumeSlider = document.getElementById('volumeSlider');
         const muteBtn = document.getElementById('muteBtn');
 
-        // 更新 Icon 的函式
         function updateVolumeIcon() {
             if (video.muted || video.volume === 0) {
-                muteBtn.innerText = "🔇"; // 靜音圖示
+                muteBtn.innerText = "🔇"; 
             } else {
-                muteBtn.innerText = "🔊"; // 有聲圖示
+                muteBtn.innerText = "🔊"; 
             }
         }
 
         volumeSlider.addEventListener('input', (e) => {
             const vol = parseFloat(e.target.value);
             video.volume = vol;
-            
-            // 如果拉動音量條且當前是靜音，則解除靜音
-            if (vol > 0 && video.muted) {
-                video.muted = false;
-            }
-            // 如果拉到 0，視為靜音
-            if (vol === 0) {
-                video.muted = true;
-            }
+            if (vol > 0 && video.muted) video.muted = false;
+            if (vol === 0) video.muted = true;
             updateVolumeIcon();
         });
 
         function toggleMute() {
             video.muted = !video.muted;
-            
-            // 如果解除靜音但音量是 0，設回預設值
             if (!video.muted && video.volume === 0) {
                 video.volume = 0.5;
                 volumeSlider.value = 0.5;
             }
-            
-            // 如果切換成靜音，可以選擇把滑桿歸零，或是保留滑桿位置 (這裡選擇保留位置，僅變更圖示)
-            // 但如果滑桿在 0 的位置解除靜音，上面已經處理了回彈到 0.5
-            if (video.muted) {
-                // optional: volumeSlider.value = 0; 
-            } else {
-                volumeSlider.value = video.volume;
-            }
-
+            if (!video.muted) volumeSlider.value = video.volume;
             updateVolumeIcon();
         }
 
         window.togglePlay = function(el) {
             const icon = el.querySelector('.play-icon');
             const progress = document.getElementById('progressFill');
-            const overlay = document.getElementById('lighting-overlay');
-
-            // 第一次播放時解除靜音 (User Interaction)
+            
             if (video.muted) {
                 video.muted = false;
-                if(video.volume === 0) { 
-                    video.volume = 0.5; 
-                    volumeSlider.value = 0.5; 
-                }
+                if(video.volume === 0) { video.volume = 0.5; volumeSlider.value = 0.5; }
                 updateVolumeIcon();
             }
 
@@ -416,7 +441,6 @@
                 icon.style.borderWidth = '6px 0 6px 10px';
                 icon.style.width = '0'; icon.style.height = '0';
                 progress.style.animationPlayState = 'paused';
-                overlay.style.animationPlayState = 'paused';
                 if(video) video.pause();
             } else {
                 el.classList.add('playing');
@@ -424,7 +448,6 @@
                 icon.style.borderWidth = '0 0 0 10px';
                 icon.style.width = '10px'; icon.style.height = '12px';
                 progress.style.animationPlayState = 'running';
-                overlay.style.animationPlayState = 'running';
                 if(video) video.play();
             }
         };
@@ -433,25 +456,22 @@
             const playBtn = document.querySelector('.play-btn');
             const icon = playBtn.querySelector('.play-icon');
             const progress = document.getElementById('progressFill');
-            const overlay = document.getElementById('lighting-overlay');
 
             playBtn.classList.add('playing');
             icon.style.borderStyle = 'double';
             icon.style.borderWidth = '0 0 0 10px';
             icon.style.width = '10px'; icon.style.height = '12px';
             progress.style.animationPlayState = 'running';
-            overlay.style.animationPlayState = 'running';
 
             if(video) {
                 video.play().catch(e => console.log("Autoplay blocked:", e));
-                // 初始化時通常是靜音自動播放，所以 Icon 應顯示靜音
                 updateVolumeIcon();
             }
         };
 
         initPlay();
 
-        /* --- Gemini API (Modified System Prompt) --- */
+        /* --- Gemini API --- */
         async function callGemini() {
             const inputEl = document.getElementById('userInput');
             const responseEl = document.getElementById('aiResponse');
@@ -465,7 +485,6 @@
             responseEl.style.opacity = 1;
             responseEl.innerText = "聽著雨聲...";
             
-            // 修改後的 Prompt：移除具體歌詞，保留 Lo-fi 氛圍與情感
             const systemPrompt = `
                 You are a Lo-fi spirit, living in a rainy, humid atmosphere.
                 Tone: Muffled, poetic, slightly lonely but comforting, like a whisper in a rainy night.
@@ -473,7 +492,6 @@
                 Task: Reply to the user in Traditional Chinese (繁體中文), under 30 words.
                 Avoid specific song lyrics. Focus on the mood.
             `;
-            
             const userPrompt = `User's thought: "${userText}". Whisper back.`;
             
             try {
@@ -499,15 +517,13 @@
             type();
         }
 
-        /* --- Canvas System: Pure Fog (Textured & Regenerating) --- */
+        /* --- Canvas System --- */
         const fogCanvas = document.getElementById('fogCanvas');
         const fogCtx = fogCanvas.getContext('2d');
         const hintText = document.querySelector('.hint');
 
-        // 霧氣設定
         const SETTINGS = {
             fogRGB: '220, 225, 230',
-            // 恢復速度：數字越小越慢 (0.003 代表每次 loop 增加 0.3% 不透明度)
             fadeBackSpeed: 0.003, 
             brushSize: 50
         };
@@ -518,17 +534,14 @@
         let lastY = 0;
         let noisePattern = null;
         
-        // 建立噪點 (Noise Pattern) 讓霧氣有質感
         function createNoisePattern() {
             const noiseCanvas = document.createElement('canvas');
             const noiseSize = 128;
             noiseCanvas.width = noiseSize;
             noiseCanvas.height = noiseSize;
             const nCtx = noiseCanvas.getContext('2d');
-            
             nCtx.fillStyle = `rgba(${SETTINGS.fogRGB}, 0.5)`;
             nCtx.fillRect(0, 0, noiseSize, noiseSize);
-            
             for (let i = 0; i < 2000; i++) {
                 const x = Math.random() * noiseSize;
                 const y = Math.random() * noiseSize;
@@ -545,17 +558,12 @@
         function resize() {
             width = window.innerWidth;
             height = window.innerHeight;
-            
             fogCanvas.width = width;
             fogCanvas.height = height;
-
             noisePattern = createNoisePattern();
-            
-            // 填滿初始霧氣 (使用噪點)
             fogCtx.globalCompositeOperation = 'source-over';
             fogCtx.fillStyle = `rgba(${SETTINGS.fogRGB}, 1.0)`;
             fogCtx.fillRect(0, 0, width, height);
-            
             if (noisePattern) {
                 fogCtx.fillStyle = noisePattern;
                 fogCtx.globalAlpha = 0.5;
@@ -571,47 +579,32 @@
 
         function draw(e) {
             if (!isDrawing) return;
-            
-            // 隱藏提示
             if(hintText.style.display !== 'none') hintText.style.display = 'none';
-
             const { x, y } = getPos(e);
-
-            // 擦拭霧氣 (使用線條繪製，解決斷點問題)
             fogCtx.save();
             fogCtx.globalCompositeOperation = 'destination-out';
-            
             fogCtx.beginPath();
             fogCtx.moveTo(lastX, lastY);
             fogCtx.lineTo(x, y);
-            
             fogCtx.lineCap = 'round';
             fogCtx.lineJoin = 'round';
             fogCtx.lineWidth = SETTINGS.brushSize; 
-            
-            // 這裡保留一點模糊，因為這讓噪點霧氣的邊緣看起來更自然
             fogCtx.shadowBlur = 30; 
             fogCtx.shadowColor = 'black'; 
             fogCtx.stroke();
-            
-            // 補一個圓在當前位置，避免線條轉折處的空隙
             fogCtx.beginPath();
             fogCtx.arc(x, y, SETTINGS.brushSize / 2, 0, Math.PI * 2);
             fogCtx.fill();
-            
             fogCtx.restore();
-
             lastX = x;
             lastY = y;
         }
 
         function loop() {
-            // 霧氣緩慢恢復 (使用純色淡入，模擬凝結)
             fogCtx.globalCompositeOperation = 'source-over';
-            fogCtx.shadowBlur = 0; // 恢復時不需要陰影
+            fogCtx.shadowBlur = 0; 
             fogCtx.fillStyle = `rgba(${SETTINGS.fogRGB}, ${SETTINGS.fadeBackSpeed})`;
             fogCtx.fillRect(0, 0, width, height);
-
             requestAnimationFrame(loop);
         }
 
